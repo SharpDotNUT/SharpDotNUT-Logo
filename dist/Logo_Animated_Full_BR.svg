@@ -1,0 +1,81 @@
+<svg width="2100" height="700" viewBox="0 0 2100 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="weave-slot">
+      <rect x="200" y="400" width="100" height="100"/>
+    </clipPath>
+  </defs>
+  <style>
+    .anim {
+      animation-duration: 4s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: forwards;
+    }
+    .bar.orange { animation-name: enter-orange; }
+    .bar.green { animation-name: enter-green; }
+    .bar.yellow { animation-name: enter-yellow; }
+    .bar.blue { animation-name: enter-blue; }
+    @keyframes enter-orange {
+      0% { transform: translate(0, -1300px); }
+      31.25%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-green {
+      0%, 6.25% { transform: translate(2800px, 0); }
+      37.5%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-yellow {
+      0%, 12.5% { transform: translate(0, 1300px); }
+      43.75%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-blue {
+      0%, 18.75% { transform: translate(-2800px, 0); }
+      50%, 100% { transform: translate(0, 0); }
+    }
+    .stage { animation-name: slide; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+    .glyph.dot { animation-name: float-dot; }
+    .glyph.n { animation-name: float-n; }
+    .glyph.u { animation-name: float-u; }
+    .glyph.t { animation-name: float-t; }
+    @keyframes slide {
+      0%, 50% { transform: translate(700px, 0); }
+      67.5%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes float-dot {
+      0%, 67.5% { transform: translate(80px, 30px); opacity: 0; }
+      85%, 100% { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes float-n {
+      0%, 70% { transform: translate(80px, 30px); opacity: 0; }
+      87.5%, 100% { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes float-u {
+      0%, 72.5% { transform: translate(80px, 30px); opacity: 0; }
+      90%, 100% { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes float-t {
+      0%, 75% { transform: translate(80px, 30px); opacity: 0; }
+      92.5%, 100% { transform: translate(0, 0); opacity: 1; }
+    }
+  </style>
+  <rect x="0" y="0" width="2100" height="700" rx="100" fill="#ffffff"/>
+  <g class="anim stage">
+    <rect class="anim bar blue" x="100" y="400" width="500" height="100" fill="#01a6f0"/>
+    <rect class="anim bar yellow" x="400" y="100" width="100" height="500" fill="#ffba01"/>
+    <rect class="anim bar green" x="100" y="200" width="500" height="100" fill="#7fbc00"/>
+    <rect class="anim bar orange" x="200" y="100" width="100" height="500" fill="#f34f1c"/>
+    <g clip-path="url(#weave-slot)">
+      <rect class="anim bar blue" x="100" y="400" width="500" height="100" fill="#01a6f0"/>
+    </g>
+  </g>
+  <g class="anim glyph dot">
+    <path d="M 700,500 L 800,500 L 800,600 L 700,600 Z" fill="#000000"/>
+  </g>
+  <g class="anim glyph n">
+    <path d="M 900,100 L 1200,100 L 1200,600 L 1100,600 L 1100,200 L 1000,200 L 1000,600 L 900,600 Z" fill="#000000"/>
+  </g>
+  <g class="anim glyph u">
+    <path d="M 1300,100 L 1400,100 L 1400,500 L 1500,500 L 1500,100 L 1600,100 L 1600,600 L 1300,600 Z" fill="#000000"/>
+  </g>
+  <g class="anim glyph t">
+    <path d="M 1700,100 L 2000,100 L 2000,200 L 1900,200 L 1900,600 L 1800,600 L 1800,200 L 1700,200 Z" fill="#000000"/>
+  </g>
+</svg>

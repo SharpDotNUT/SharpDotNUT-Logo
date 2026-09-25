@@ -8,10 +8,13 @@ import sharp from "sharp";
 interface LogoOptions {
   full?: boolean;
   background?: boolean;
+  /** Corner radius of the background layer in SVG units; `0` (the default) is square. */
+  round?: number;
 }
 
 interface AnimatedLogoOptions {
   background?: boolean;
+  round?: number;
 }
 
 const iconPaths = [
@@ -42,12 +45,12 @@ const textPaths = [
 ];
 
 export function generateLogo(options: LogoOptions = {}): string {
-  const { full = false, background = false } = options;
+  const { full = false, background = false, round = 0 } = options;
   const width = full ? 2100 : 700;
   const height = 700;
 
   const paths = [...iconPaths, ...(full ? textPaths : [])];
-  const bgRect = background ? `${backgroundRect({ width, height })}\n` : "";
+  const bgRect = background ? `${backgroundRect({ width, height }, round)}\n` : "";
 
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
 ${bgRect}${paths.map((p) => `  <path d="${p.d}" fill="${p.fill}"/>`).join("\n")}
@@ -59,9 +62,12 @@ interface Frame {
   height: number;
 }
 
-/** The opaque white layer the `_B` variants paint behind the artwork. */
-const backgroundRect = (frame: Frame) =>
-  `  <rect x="0" y="0" width="${frame.width}" height="${frame.height}" fill="#ffffff"/>`;
+/** One design module: the bar thickness, the padding around the artwork and the corner radius. */
+const cornerRadius = 100;
+
+/** The opaque white layer the `_B` (square) and `_BR` (rounded) variants paint behind the artwork. */
+const backgroundRect = (frame: Frame, round = 0) =>
+  `  <rect x="0" y="0" width="${frame.width}" height="${frame.height}"${round > 0 ? ` rx="${round}"` : ""} fill="#ffffff"/>`;
 
 type Side = "top" | "right" | "bottom" | "left";
 
@@ -173,7 +179,7 @@ function iconRules(total: number, frame: Frame, originX: number): string {
 }
 
 export function generateAnimatedLogo(options: AnimatedLogoOptions = {}): string {
-  const { background = false } = options;
+  const { background = false, round = 0 } = options;
   const frame = { width: 700, height: 700 };
 
   return `<svg width="${frame.width}" height="${frame.height}" viewBox="0 0 ${frame.width} ${frame.height}" xmlns="http://www.w3.org/2000/svg">
@@ -182,7 +188,7 @@ ${weaveDefs}
 ${animRule(assembly)}
 ${iconRules(assembly, frame, 0)}
   </style>
-${background ? `${backgroundRect(frame)}\n` : ""}${iconMarkup()}
+${background ? `${backgroundRect(frame, round)}\n` : ""}${iconMarkup()}
 </svg>`;
 }
 
@@ -197,7 +203,7 @@ const glyphFrom = "translate(80px, 30px)";
  * beside it — the animated counterpart of `Logo_Full.svg`.
  */
 export function generateAnimatedFullLogo(options: AnimatedLogoOptions = {}): string {
-  const { background = false } = options;
+  const { background = false, round = 0 } = options;
   const frame = { width: 2100, height: 700 };
   /** Keeps the assembling icon centred; the same distance it then slides left by. */
   const iconShift = 700;
@@ -242,7 +248,7 @@ ${glyphRules}
     }
 ${glyphKeyframes}
   </style>
-${background ? `${backgroundRect(frame)}\n` : ""}  <g class="anim stage">
+${background ? `${backgroundRect(frame, round)}\n` : ""}  <g class="anim stage">
 ${iconMarkup("    ")}
   </g>
 ${glyphMarkup}
@@ -253,8 +259,10 @@ export async function generateAll(outputDir: string = "."): Promise<void> {
   const variants: [string, LogoOptions][] = [
     ["Logo", { full: false, background: false }],
     ["Logo_B", { full: false, background: true }],
+    ["Logo_BR", { full: false, background: true, round: cornerRadius }],
     ["Logo_Full", { full: true, background: false }],
     ["Logo_Full_B", { full: true, background: true }],
+    ["Logo_Full_BR", { full: true, background: true, round: cornerRadius }],
   ];
 
   for (const [filename, opts] of variants) {
@@ -269,8 +277,10 @@ export async function generateAll(outputDir: string = "."): Promise<void> {
   const animated: [string, string][] = [
     ["Logo_Animated.svg", generateAnimatedLogo()],
     ["Logo_Animated_B.svg", generateAnimatedLogo({ background: true })],
+    ["Logo_Animated_BR.svg", generateAnimatedLogo({ background: true, round: cornerRadius })],
     ["Logo_Animated_Full.svg", generateAnimatedFullLogo()],
     ["Logo_Animated_Full_B.svg", generateAnimatedFullLogo({ background: true })],
+    ["Logo_Animated_Full_BR.svg", generateAnimatedFullLogo({ background: true, round: cornerRadius })],
   ];
   for (const [filename, svg] of animated) {
     const file = path.resolve(outputDir, "dist", filename);

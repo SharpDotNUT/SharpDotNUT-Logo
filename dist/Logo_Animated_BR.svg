@@ -1,0 +1,42 @@
+<svg width="700" height="700" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="weave-slot">
+      <rect x="200" y="400" width="100" height="100"/>
+    </clipPath>
+  </defs>
+  <style>
+    .anim {
+      animation-duration: 2s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: forwards;
+    }
+    .bar.orange { animation-name: enter-orange; }
+    .bar.green { animation-name: enter-green; }
+    .bar.yellow { animation-name: enter-yellow; }
+    .bar.blue { animation-name: enter-blue; }
+    @keyframes enter-orange {
+      0% { transform: translate(0, -1300px); }
+      62.5%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-green {
+      0%, 12.5% { transform: translate(1300px, 0); }
+      75%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-yellow {
+      0%, 25% { transform: translate(0, 1300px); }
+      87.5%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes enter-blue {
+      0%, 37.5% { transform: translate(-1300px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+  </style>
+  <rect x="0" y="0" width="700" height="700" rx="100" fill="#ffffff"/>
+  <rect class="anim bar blue" x="100" y="400" width="500" height="100" fill="#01a6f0"/>
+  <rect class="anim bar yellow" x="400" y="100" width="100" height="500" fill="#ffba01"/>
+  <rect class="anim bar green" x="100" y="200" width="500" height="100" fill="#7fbc00"/>
+  <rect class="anim bar orange" x="200" y="100" width="100" height="500" fill="#f34f1c"/>
+  <g clip-path="url(#weave-slot)">
+    <rect class="anim bar blue" x="100" y="400" width="500" height="100" fill="#01a6f0"/>
+  </g>
+</svg>
