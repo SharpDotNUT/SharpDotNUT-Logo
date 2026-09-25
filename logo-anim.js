@@ -29,7 +29,8 @@ const rules = (base, speed) => `
 `;
 
 export class LogoAnim extends HTMLElement {
-  static observedAttributes = ["src", "speed", "paused", "alt"];
+  /** `paused` is a plain attribute selector in the shadow CSS, so only these need script. */
+  static observedAttributes = ["src", "speed", "alt"];
 
   #root = this.attachShadow({ mode: "open" });
   /** Appended behind the SVG, so it beats the SVG's own `.anim` rule (same specificity, later). */
@@ -59,7 +60,6 @@ export class LogoAnim extends HTMLElement {
       this.#sync();
       return;
     }
-    // `paused` needs no script: `:host([paused])` is CSS.
     if (name === "src") void this.#mount();
   }
 

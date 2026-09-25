@@ -9,8 +9,12 @@
 ## Animated logo
 
 <img src="./dist/Logo_Animated.svg" alt="Animated SharpDotNUT" width="210" height="210" />
-
+<img src="./dist/Logo_Animated_B.svg" alt="Animated SharpDotNUT on white" width="210" height="210" />
+<br />
 <img src="./dist/Logo_Animated_Full.svg" alt="Animated SharpDotNUT full logo" width="630" height="210" />
+<img src="./dist/Logo_Animated_Full_B.svg" alt="Animated SharpDotNUT full logo on white" width="630" height="210" />
+
+The `_B` files paint an opaque white layer behind the artwork; the others are transparent.
 
 ## Web Component
 
@@ -22,6 +26,7 @@ cannot reach.
 <script type="module" src="./logo-anim.js"></script>
 
 <logo-anim src="./dist/Logo_Animated.svg" alt="SharpDotNUT" style="width: 70px"></logo-anim>
+<logo-anim src="./dist/Logo_Animated_B.svg" alt="SharpDotNUT on white" style="width: 70px"></logo-anim>
 <logo-anim id="logo" src="./dist/Logo_Animated_Full.svg" alt="SharpDotNUT" style="width: 210px"></logo-anim>
 
 <script type="module">
@@ -32,14 +37,17 @@ cannot reach.
 </script>
 ```
 
-| Attribute |                                                                                        |
-| --------- | -------------------------------------------------------------------------------------- |
-| `src`     | animated SVG to load, resolved with `fetch` (same origin or CORS)                        |
-| `speed`   | positive multiplier on the SVG's own duration, default `1`; invalid values fall back to `1` |
-| `paused`  | freeze on the current frame                                                             |
-| `alt`     | accessible name; without it the element is hidden from assistive tech                    |
+| Attribute |                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------- |
+| `src`     | animated SVG to load — `_B` for the white background — resolved with `fetch` (same origin or CORS) |
+| `speed`   | positive multiplier on the SVG's own duration, default `1`; invalid values fall back to `1`   |
+| `paused`  | freeze on the current frame                                                                  |
+| `alt`     | accessible name; without it the element is hidden from assistive tech                         |
 
 Methods: `play()`, `pause()`, `replay()`. Properties `speed` and `paused` mirror the attributes.
+
+The variant is chosen with `src`: the `_B` files already carry the white layer, so
+`<logo-anim src="./dist/Logo_Animated_B.svg">` needs nothing else.
 
 The shadow root holds `svg { width: 100% }`, so size the element itself with CSS; unset, it takes
 the SVG's intrinsic width (700px or 2100px). The duration is read from the SVG with

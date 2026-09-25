@@ -10,6 +10,10 @@ interface LogoOptions {
   background?: boolean;
 }
 
+interface AnimatedLogoOptions {
+  background?: boolean;
+}
+
 const iconPaths = [
   { d: "M 200,400 L 200,100 L 300,100 L 300,400 Z", fill: "#f34f1c" },
   { d: "M 200,500 L 300,500 L 300,600 L 200,600 Z", fill: "#f34f1c" },
@@ -43,9 +47,7 @@ export function generateLogo(options: LogoOptions = {}): string {
   const height = 700;
 
   const paths = [...iconPaths, ...(full ? textPaths : [])];
-  const bgRect = background
-    ? `  <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>\n`
-    : "";
+  const bgRect = background ? `${backgroundRect({ width, height })}\n` : "";
 
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
 ${bgRect}${paths.map((p) => `  <path d="${p.d}" fill="${p.fill}"/>`).join("\n")}
@@ -56,6 +58,10 @@ interface Frame {
   width: number;
   height: number;
 }
+
+/** The opaque white layer the `_B` variants paint behind the artwork. */
+const backgroundRect = (frame: Frame) =>
+  `  <rect x="0" y="0" width="${frame.width}" height="${frame.height}" fill="#ffffff"/>`;
 
 type Side = "top" | "right" | "bottom" | "left";
 
@@ -166,7 +172,8 @@ function iconRules(total: number, frame: Frame, originX: number): string {
   return `${names}\n${keyframes}`;
 }
 
-export function generateAnimatedLogo(): string {
+export function generateAnimatedLogo(options: AnimatedLogoOptions = {}): string {
+  const { background = false } = options;
   const frame = { width: 700, height: 700 };
 
   return `<svg width="${frame.width}" height="${frame.height}" viewBox="0 0 ${frame.width} ${frame.height}" xmlns="http://www.w3.org/2000/svg">
@@ -175,7 +182,7 @@ ${weaveDefs}
 ${animRule(assembly)}
 ${iconRules(assembly, frame, 0)}
   </style>
-${iconMarkup()}
+${background ? `${backgroundRect(frame)}\n` : ""}${iconMarkup()}
 </svg>`;
 }
 
@@ -189,7 +196,8 @@ const glyphFrom = "translate(80px, 30px)";
  * Icon assembling in the middle of the frame, sliding left into place and `.NUT` floating in
  * beside it — the animated counterpart of `Logo_Full.svg`.
  */
-export function generateAnimatedFullLogo(): string {
+export function generateAnimatedFullLogo(options: AnimatedLogoOptions = {}): string {
+  const { background = false } = options;
   const frame = { width: 2100, height: 700 };
   /** Keeps the assembling icon centred; the same distance it then slides left by. */
   const iconShift = 700;
@@ -234,7 +242,7 @@ ${glyphRules}
     }
 ${glyphKeyframes}
   </style>
-  <g class="anim stage">
+${background ? `${backgroundRect(frame)}\n` : ""}  <g class="anim stage">
 ${iconMarkup("    ")}
   </g>
 ${glyphMarkup}
@@ -260,7 +268,9 @@ export async function generateAll(outputDir: string = "."): Promise<void> {
   }
   const animated: [string, string][] = [
     ["Logo_Animated.svg", generateAnimatedLogo()],
+    ["Logo_Animated_B.svg", generateAnimatedLogo({ background: true })],
     ["Logo_Animated_Full.svg", generateAnimatedFullLogo()],
+    ["Logo_Animated_Full_B.svg", generateAnimatedFullLogo({ background: true })],
   ];
   for (const [filename, svg] of animated) {
     const file = path.resolve(outputDir, "dist", filename);
