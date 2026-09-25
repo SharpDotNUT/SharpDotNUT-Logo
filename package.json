@@ -1,6 +1,64 @@
 {
-	"dependencies": {
-		"@types/node": "^25.9.1",
-		"sharp": "^0.34.5"
-	}
+  "name": "@sharpdotnut/logo",
+  "version": "0.1.0",
+  "description": "SharpDotNUT logo assets — 12 SVG variants (static and animated), an optional PNG build, and the dependency-free <logo-anim> web component.",
+  "keywords": [
+    "logo",
+    "svg",
+    "brand",
+    "assets",
+    "web-component",
+    "custom-element",
+    "animation"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Kuriyona <Kuriyona@outlook.com>",
+  "homepage": "https://github.com/SharpDotNUT/SharpDotNUT-Logo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SharpDotNUT/SharpDotNUT-Logo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SharpDotNUT/SharpDotNUT-Logo/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./logo-anim.d.ts",
+      "default": "./logo-anim.js"
+    },
+    "./logo-anim.js": "./logo-anim.js",
+    "./rasterize.js": "./rasterize.js",
+    "./*.svg": "./dist/*.svg",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
+  "main": "./logo-anim.js",
+  "module": "./logo-anim.js",
+  "types": "./logo-anim.d.ts",
+  "files": [
+    "rasterize.js",
+    "logo-anim.js",
+    "logo-anim.d.ts",
+    "dist/*.svg"
+  ],
+  "scripts": {
+    "generate": "node generate.ts",
+    "prepublishOnly": "node generate.ts && git diff --exit-code -- dist"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "sharp": ">=0.34.0"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "sharp": "^0.34.5"
+  }
 }

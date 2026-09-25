@@ -4,6 +4,7 @@
     "lib": ["es2022"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "allowJs": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": ["node"]

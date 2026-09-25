@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import sharp from "sharp";
 import {
   cornerRadius,
   generateAnimatedFullLogo,
@@ -8,8 +7,17 @@ import {
   generateLogo,
 } from "./logo.ts";
 import type { LogoOptions } from "./logo.ts";
+import { writePngs } from "./rasterize.js";
 
+/**
+ * Writes the 12 artifacts into `<outputDir>/dist`, resolved against `process.cwd()`: the 6 static
+ * variants as `.svg`, the 6 animated ones as `.svg`, then the PNGs of the static six through
+ * `writePngs` — skipped, with a log line, when `sharp` is not installed.
+ */
 async function generateAll(outputDir: string = "."): Promise<void> {
+  const dist = path.resolve(outputDir, "dist");
+  await fs.mkdir(dist, { recursive: true });
+
   const variants: [string, LogoOptions][] = [
     ["Logo", { full: false, background: false }],
     ["Logo_B", { full: false, background: true }],
@@ -20,13 +28,9 @@ async function generateAll(outputDir: string = "."): Promise<void> {
   ];
 
   for (const [filename, opts] of variants) {
-    const svg = path.resolve(outputDir, "dist", filename + ".svg");
-    const png = path.resolve(outputDir, "dist", filename + ".png");
-    const svgFile = generateLogo(opts);
-    const pngFile = sharp(Buffer.from(svgFile, "utf-8")).png();
-    await fs.writeFile(svg, svgFile, "utf-8");
-    await fs.writeFile(png, pngFile);
-    console.log(`Generated: ${svg}, ${png}`);
+    const svg = path.resolve(dist, filename + ".svg");
+    await fs.writeFile(svg, generateLogo(opts), "utf-8");
+    console.log(`Generated: ${svg}`);
   }
   const animated: [string, string][] = [
     ["Logo_Animated.svg", generateAnimatedLogo()],
@@ -37,10 +41,12 @@ async function generateAll(outputDir: string = "."): Promise<void> {
     ["Logo_Animated_Full_BR.svg", generateAnimatedFullLogo({ background: true, round: cornerRadius })],
   ];
   for (const [filename, svg] of animated) {
-    const file = path.resolve(outputDir, "dist", filename);
+    const file = path.resolve(dist, filename);
     await fs.writeFile(file, svg, "utf-8");
     console.log(`Generated: ${file}`);
   }
+
+  await writePngs(dist, { from: dist });
 }
 
 await generateAll();

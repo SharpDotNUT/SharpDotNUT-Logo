@@ -7,7 +7,7 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
