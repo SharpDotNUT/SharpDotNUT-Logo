@@ -11,3 +11,38 @@
 <img src="./dist/Logo_Animated.svg" alt="Animated SharpDotNUT" width="210" height="210" />
 
 <img src="./dist/Logo_Animated_Full.svg" alt="Animated SharpDotNUT full logo" width="630" height="210" />
+
+## Web Component
+
+`logo-anim.js` loads an animated SVG into a shadow root and is the only way to control the
+animation from the page — an animated SVG in an `<img>` is a separate document that page CSS
+cannot reach.
+
+```html
+<script type="module" src="./logo-anim.js"></script>
+
+<logo-anim src="./dist/Logo_Animated.svg" alt="SharpDotNUT" style="width: 70px"></logo-anim>
+<logo-anim id="logo" src="./dist/Logo_Animated_Full.svg" alt="SharpDotNUT" style="width: 210px"></logo-anim>
+
+<script type="module">
+  const logo = document.querySelector("#logo");
+  logo.speed = 2; // twice as fast, applied live
+  logo.paused = true; // freeze on the current frame
+  logo.replay(); // back to the first frame
+</script>
+```
+
+| Attribute |                                                                                        |
+| --------- | -------------------------------------------------------------------------------------- |
+| `src`     | animated SVG to load, resolved with `fetch` (same origin or CORS)                        |
+| `speed`   | positive multiplier on the SVG's own duration, default `1`; invalid values fall back to `1` |
+| `paused`  | freeze on the current frame                                                             |
+| `alt`     | accessible name; without it the element is hidden from assistive tech                    |
+
+Methods: `play()`, `pause()`, `replay()`. Properties `speed` and `paused` mirror the attributes.
+
+The shadow root holds `svg { width: 100% }`, so size the element itself with CSS; unset, it takes
+the SVG's intrinsic width (700px or 2100px). The duration is read from the SVG with
+`getComputedStyle` (`2s` icon, `4s` full logo) and `speed` scales the whole timeline, because every
+keyframe is a percentage. `prefers-reduced-motion: reduce` holds the finished logo instead of
+playing.

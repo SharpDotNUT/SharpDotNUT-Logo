@@ -22,4 +22,45 @@
   <br />
   <img src="./dist/Logo_Full.png" alt="SharpDotNUT" width="210" height="70" />
   <img src="./dist/Logo_Full_B.png" alt="SharpDotNUT" width="210" height="70" />
+  <h2>Web Component</h2>
+  <logo-anim src="./dist/Logo_Animated.svg" alt="Animated SharpDotNUT logo" style="width: 70px"></logo-anim>
+  <logo-anim
+    src="./dist/Logo_Animated_Full.svg"
+    alt="Animated SharpDotNUT full logo"
+    style="width: 210px"
+  ></logo-anim>
+  <br />
+  <label for="demo-speed">Speed</label>
+  <input id="demo-speed" type="range" min="0.25" max="4" step="0.25" value="1" />
+  <output id="demo-speed-value">1×</output>
+  <button id="demo-pause" type="button">Pause</button>
+  <button id="demo-replay" type="button">Replay</button>
+  <script type="module">
+    import "./logo-anim.js";
+
+    const logos = document.querySelectorAll("logo-anim");
+    const speed = document.querySelector("#demo-speed");
+    const speedValue = document.querySelector("#demo-speed-value");
+    const pause = document.querySelector("#demo-pause");
+
+    speed.addEventListener("input", () => {
+      for (const logo of logos) logo.speed = speed.value;
+      speedValue.textContent = `${speed.value}×`;
+    });
+
+    // `replay()` also resumes, so the label has to follow the state, not the clicks.
+    const sync = () => {
+      pause.textContent = logos[0].paused ? "Resume" : "Pause";
+    };
+    pause.addEventListener("click", () => {
+      const paused = !logos[0].paused; // read once: the loop mutates the state it reads
+      for (const logo of logos) logo.paused = paused;
+      sync();
+    });
+    document.querySelector("#demo-replay").addEventListener("click", () => {
+      for (const logo of logos) logo.replay();
+      sync();
+    });
+    sync();
+  </script>
 </body>
