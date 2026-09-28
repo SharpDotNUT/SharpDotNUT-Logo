@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@sharpdotnut/logo':
-        specifier: link:..
-        version: link:..
+        specifier: ^0.1.0
+        version: 0.1.0
       gsap:
         specifier: ^3.15.0
         version: 3.15.0
@@ -160,6 +160,14 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@sharpdotnut/logo@0.1.0':
+    resolution: {integrity: sha512-hyo8fVumLn51CYp2uX6V8PiqBGHWnvDy+F9UmfV/ikW/Ma4cyR+NTayz2SMIscUeIhsumoAiZb2RD4wqgdwwQg==}
+    peerDependencies:
+      sharp: '>=0.34.0'
+    peerDependenciesMeta:
+      sharp:
+        optional: true
 
   '@shikijs/core@4.4.3':
     resolution: {integrity: sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==}
@@ -638,6 +646,8 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@sharpdotnut/logo@0.1.0': {}
 
   '@shikijs/core@4.4.3':
     dependencies:
