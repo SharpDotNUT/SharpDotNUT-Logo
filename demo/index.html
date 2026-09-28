@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SharpDotNUT logo</title>
+    <meta
+      name="description"
+      content="SharpDotNUT logo assets: 12 SVG variants, an animated timeline and a dependency-free <logo-anim> element."
+    />
+    <script>
+      try {
+        const stored = localStorage.getItem("logo-demo-theme");
+        const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme =
+          stored === "light" || stored === "dark" ? stored : dark ? "dark" : "light";
+        const locale = localStorage.getItem("logo-demo-locale");
+        document.documentElement.lang =
+          locale === "zh" || (!locale && navigator.language.startsWith("zh")) ? "zh-CN" : "en";
+      } catch {}
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

@@ -1,2 +1,4 @@
 /node_modules
 *.png
+/demo/node_modules
+/demo/dist
