@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { artifacts } from "../data/mark";
+import { artifacts, pngUrl } from "../data/mark";
 import { t } from "../i18n";
 
 const GROUPS = [
@@ -32,6 +32,14 @@ const GROUPS = [
           <p class="card__traits">
             <span class="chip">{{ t(`variants.kind.${artifact.kind}`) }}</span>
             <span class="chip">{{ t(`variants.layer.${artifact.layer}`) }}</span>
+            <a
+              v-if="artifact.kind === 'static'"
+              class="chip card__png"
+              :href="pngUrl(artifact.file)"
+              target="_blank"
+              rel="noopener"
+              :aria-label="t('variants.png.label', { file: artifact.file })"
+            >{{ t("variants.png") }}</a>
           </p>
         </li>
       </ul>
@@ -105,5 +113,16 @@ const GROUPS = [
   flex-wrap: wrap;
   gap: var(--space-1);
   margin-top: var(--space-2);
+}
+
+.card__png {
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 160ms ease;
+}
+
+.card__png:hover,
+.card__png:focus-visible {
+  border-color: color-mix(in srgb, var(--text) 30%, transparent);
 }
 </style>

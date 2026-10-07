@@ -64,6 +64,15 @@ export const artifacts: Artifact[] = [
   { file: "Logo_Animated_Full_BR.svg", url: Logo_Animated_Full_BR, kind: "animated", layer: "rounded", group: "full", width: 2100, height: 700 },
 ];
 
+/**
+ * The brand CDN mirrors each non-animated artifact as a PNG (the six `dist/*.png` rasters); the
+ * animated variants have no PNG counterpart there.
+ */
+export const pngBase = "https://os-static.sharpdotnut.com/static/logo/";
+
+/** PNG counterpart of an artifact — `Logo_B.svg` resolves to `<pngBase>Logo_B.png`. */
+export const pngUrl = (file: string): string => `${pngBase}${file.replace(/\.svg$/, ".png")}`;
+
 /** Raw markup for the two inline SVGs (the only in-document SVG injections). */
 export { default as staticIconMarkup } from "@sharpdotnut/logo/Logo.svg?raw";
 export { default as animatedIconMarkup } from "@sharpdotnut/logo/Logo_Animated.svg?raw";

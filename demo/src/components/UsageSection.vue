@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { t } from "../i18n";
+import { pngBase } from "../data/mark";
 import CodeBlock from "./ui/CodeBlock.vue";
 
 const INSTALL = `npm install @sharpdotnut/logo     # or: pnpm add @sharpdotnut/logo / bun add @sharpdotnut/logo`;
@@ -7,6 +8,10 @@ const INSTALL = `npm install @sharpdotnut/logo     # or: pnpm add @sharpdotnut/l
 const ASSETS = `import logoUrl from "@sharpdotnut/logo/Logo.svg"; // bundlers: Vite, webpack, esbuild…
 // or read it straight from the package:
 // node_modules/@sharpdotnut/logo/dist/Logo_BR.svg`;
+
+const CDN = `<!-- the 12 SVGs and their 6 static PNGs, straight from the CDN — no install -->
+<img src="${pngBase}Logo.svg" width="700" height="700" alt="SharpDotNUT">
+<img src="${pngBase}Logo_Full_BR.png" width="2100" height="700" alt="SharpDotNUT">`;
 
 const PNGS = `// build-logo-pngs.mjs — run once, or wire it into a prebuild step
 import { writePngs } from "@sharpdotnut/logo/rasterize.js";
@@ -27,6 +32,7 @@ await writePngs("./public/brand"); // the 6 static PNGs
     <div class="wrap usage__grid" data-reveal>
       <CodeBlock :label="t('usage.install')" lang="bash" :code="INSTALL" />
       <CodeBlock :label="t('usage.assets')" lang="js" :code="ASSETS" />
+      <CodeBlock :label="t('usage.cdn')" lang="html" :code="CDN" />
       <CodeBlock :label="t('usage.pngs')" lang="js" :code="PNGS" />
 
       <article class="license">
