@@ -1,24 +1,47 @@
 # Repository Guidelines
 
-Brand asset source for **SharpDotNUT**, published as the npm package **`@sharpdotnut/logo`**. The
-repository has two parts with different rules:
+Brand asset source for **SharpDotNUT**, published as the npm package **`@sharpdotnut/logo`** — plus
+the demo site that showcases it. Both live in this repository, with different rules and toolchains:
 
-1. **The package (repo root) — in scope.** Four hand-written sources emit the logo as SVG
-   (`logo.ts` builds the strings, `generate.ts` writes them, `rasterize.js` renders the PNGs) and one
+1. **The package (repo root) — Part 1.** Four hand-written sources emit the logo as SVG (`logo.ts`
+   builds the strings, `generate.ts` writes them, `rasterize.js` renders the PNGs) and one
    dependency-free web component (`logo-anim.js` + `logo-anim.d.ts`) plays the animated variants on a
    page. `dist/` is committed output: its 12 SVGs are the deliverable and the package payload, its 6
    PNGs are build leftovers.
-2. **The demo site (`demo/`) — a subproject of this repository.** It is versioned here and belongs to
-   this project, but **this file does not describe it**: `demo/AGENTS.md` owns every rule and detail
-   under `demo/` — read that one before touching anything in there, and don't restate its contents
-   here. What matters up here is only the boundary — **do not cross it without being asked:** package
-   work must not modify `demo/`, demo work must not modify the repo root, and package workflows
-   (`prepublishOnly`, `dist` drift checks, `npm pack`) never cover or publish `demo/`.
+2. **The demo site (`demo/`) — Part 2.** A versioned subproject of this repository: a static
+   single-page gallery that consumes the package the way a real consumer does. It has its own
+   toolchain, its own install and its own lockfile.
 
 The package has **no runtime dependency**, no build step, no bundler, no test runner, no linter and
 no CI. That is a statement about the package alone; `demo/` is not covered by it.
 
-## Project Overview
+## The Boundary Between the Two Parts
+
+- `demo/` sits inside this repository, is versioned with it and is **part of this project** — not a
+  standalone repository, not a separate package, and **never published**. Package workflows
+  (`prepublishOnly`, the `dist` drift check, `npm pack`) never cover or publish `demo/`.
+- **Do not cross the boundary without being asked:** package work must not modify `demo/`; demo work
+  must not modify the repo root. Anything outside the part you are working in is off-limits unless the
+  user explicitly asks for it.
+- Concretely off-limits from `demo/`: every package file at the repo root — `logo.ts`, `generate.ts`,
+  `rasterize.js`, `logo-anim.js`, `logo-anim.d.ts`, `dist/**`, `index.html`, `README.md`, `AGENTS.md`,
+  `package.json`, `tsconfig.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `LICENSE`, `.gitignore`.
+  Never run the parent's scripts from `demo/` (`generate`, `prepublishOnly`, `npm pack`): they rewrite
+  `dist/` and gate a publish, which is not the demo's business.
+- If a demo task looks like it *needs* a parent-side change — a new SVG variant, a new export, a fix
+  in `logo-anim.js`, a different `viewBox` — **stop and ask**. Do not "helpfully" patch the package.
+- Nothing in `demo/` may be used as a check on the package: never regenerate `dist/`, never run the
+  `dist/` drift check, never `npm pack` from `demo/`. If the demo reveals a package defect, report it —
+  changing it needs explicit approval.
+- The package is consumed the way a real consumer consumes it: `"@sharpdotnut/logo": "link:.."`
+  (`demo/package.json:10`), imported by package specifier only. There are **no relative imports into
+  the parent** anywhere in `demo/src`, and there must not be: exercising the published surface, not
+  the source, is the whole point of the subproject. Which specifiers resolve, and to what, is the
+  package's own business — Part 1 documents it.
+
+## Part 1 — The Package (Repo Root)
+
+### Project Overview
 
 - One source of truth for the artwork:
   - `logo.ts` — the artwork tables and the three pure SVG string builders (`generateLogo`,
@@ -37,7 +60,7 @@ no CI. That is a statement about the package alone; `demo/` is not covered by it
 - No `bin` and no CLI on purpose: the package is a module surface (a custom element, an `exports` map
   and one documented function for the PNGs). Consumers script it instead of shelling out.
 
-## Architecture & Data Flow
+### Architecture & Data Flow
 
 The builders are data-driven, not a drawing program.
 
@@ -76,19 +99,18 @@ The builders are data-driven, not a drawing program.
   them in `logo.ts` breaks `logo-anim.js`. Sharing no module across that boundary is deliberate: the
   contract is the emitted markup, not an import.
 
-## Key Directories
+### Key Directories
 
 - repo root — the entire package source: `logo.ts`, `generate.ts`, `rasterize.js`, `logo-anim.js`,
   `logo-anim.d.ts`, `index.html`, `README.md`, `LICENSE` (plus `package.json`, `tsconfig.json`,
   `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `.gitignore`)
 - `dist/` — generated artifacts: 12 tracked SVGs + 6 untracked PNGs (`*.png` is gitignored). Never
   hand-edit.
-- `demo/` — a subproject of this repo, outside this file's scope: `demo/AGENTS.md` owns its layout,
-  toolchain and rules.
+- `demo/` — the demo subproject; Part 2 below owns its layout, toolchain and rules.
 - Absent on purpose at the repo root: no `src/`, `scripts/`, `docs/`, `.github/`, no test directory,
   no `.gitattributes`.
 
-## Development Commands
+### Development Commands
 
 Package (run from the repo root):
 
@@ -102,11 +124,11 @@ git diff --stat dist/   # the de-facto regression check
 
 - Root has exactly two scripts: `generate` (`node generate.ts`) and `prepublishOnly`
   (`node generate.ts && git diff --exit-code -- dist`). There is **no** `build`, `test`, `lint`,
-  `typecheck` or `format` script in the package. (`demo/AGENTS.md` documents the demo's own scripts.)
+  `typecheck` or `format` script in the package. (Part 2 documents the demo's own scripts.)
 - Serving the root gallery needs a static file server. `file://` fails: `index.html` uses a module
   script and `<logo-anim>` uses `fetch`.
 
-## Code Conventions & Common Patterns
+### Code Conventions & Common Patterns
 
 - Formatting: 2-space indent, double quotes, semicolons, trailing commas, ~100 columns. Enforced by
   habit only — there is no formatter.
@@ -146,7 +168,7 @@ git diff --stat dist/   # the de-facto regression check
   `paused`, `alt`), `play()` / `pause()` / `replay()`, and the `HTMLElementTagNameMap` entry. Change
   both files together.
 
-## Important Files
+### Important Files
 
 - `logo.ts:182` `generateLogo({ full?, background?, round? })`, `logo.ts:213` / `logo.ts:231`
   `generateAnimatedLogo` / `generateAnimatedFullLogo({ background?, round? })` — the three pure string
@@ -167,7 +189,7 @@ git diff --stat dist/   # the de-facto regression check
 - `index.html` — the zero-dependency manual surface: galleries for all 12 artifacts (`:10-50`) plus 6
   live `<logo-anim>` instances with speed / Pause / Replay controls (`:51-87`).
 
-## Packaging & Publishing
+### Packaging & Publishing
 
 - Identity: `@sharpdotnut/logo`, `version` `0.1.0`, `"type": "module"` (`package.json:24`), scoped
   public publish via `"publishConfig": { "access": "public" }` — a scoped package is private by
@@ -192,7 +214,7 @@ git diff --stat dist/   # the de-facto regression check
   recombine, imply endorsement, or register it as a trademark/domain/account. Publishing needs write
   access to the `@sharpdotnut` npm org; the name is unclaimed on the registry as of 2026-09.
 
-## Runtime/Tooling Preferences
+### Runtime/Tooling Preferences
 
 - Runtime: Node ≥ 24 for the repo's direct `.ts` execution (Node 24.14 verified here; Bun 1.3.x also
   works). Type stripping requires ≥ 22.6 (experimental) / ≥ 23.6 (default). The published files are
@@ -207,7 +229,7 @@ git diff --stat dist/   # the de-facto regression check
   POSIX-only tooling or on case-sensitive paths. Note that `.bin` shims are `.cmd` on Windows — drive
   tooling through `pnpm run <script>` rather than invoking `node_modules/.bin/*` directly.
 
-## Testing & QA
+### Testing & QA
 
 - No test framework, no spec files, no CI, no linter. Verification means regenerating, packing and
   reading the diff.
@@ -243,3 +265,114 @@ git diff --stat dist/   # the de-facto regression check
   `:35`), the README gallery (`README.md:6-12`, `:16-22`) **and both language paragraphs** of its
   prose, and every gallery section of `index.html` (lines 10-87, including one component instance per
   animated variant).
+
+## Part 2 — The Demo Site (`demo/`)
+
+Everything under `demo/`, and nothing else. Paths in this part are relative to `demo/` unless they
+start with `../` (the repo root, Part 1).
+
+### Project Overview
+
+A single-page gallery/marketing site that demonstrates the logo package: hero, anatomy (the entry
+timeline scrubbed on scroll), the 12-artifact variants grid, an interactive colour palette, a live
+`<logo-anim>` playground, usage snippets and a footer. Static SPA — no backend, no routing, no state
+library, no server-side rendering.
+
+- Stack: Vite 8, Vue 3.5 (`<script setup>` SFCs), TypeScript 5.9 via `vue-tsc`, gsap 3 (ScrollTrigger)
+  for motion, shiki 4 for the code blocks. Installed with pnpm; `demo/node_modules` and `demo/dist`
+  are gitignored, the lockfile is not.
+
+### Architecture & Data Flow
+
+`demo/index.html` (inline pre-paint script sets `data-theme` + `lang` from `localStorage` to avoid a
+flash) → `src/main.ts` (imports `@sharpdotnut/logo` for the side effect that registers `<logo-anim>`,
+mounts `App`, pulls in `styles/tokens.css` + `styles/base.css`) → `src/App.vue` (`SiteNav`, six
+`*Section.vue`, `SiteFooter`; owns the gsap reveal pass and the `IntersectionObserver` scroll-spy).
+
+- `src/data/mark.ts` — the single artifact/colour table: 12 entries imported from the package with
+  `?url`, the four bar colours/sides, `?raw` markup, plus the icon/full intrinsic sizes. It **mirrors
+  `../logo.ts` by hand** (nothing is shared); an artwork change must be repeated here.
+- `src/lib/gsap.ts` — the only place `gsap.registerPlugin(ScrollTrigger)` runs; every component
+  imports gsap from here.
+- `src/lib/theme.ts` — module-singleton theme store (`system | light | dark`, `localStorage`
+  `logo-demo-theme`) writing `data-theme` on `<html>`; mirrored by the inline script in `index.html`.
+- `src/lib/timeline.ts` — `readSteps()` parses `@keyframes enter-*` out of the shipped animated SVG's
+  own `<style>`, so scrub timings come from the artifact rather than duplicated numbers.
+- `src/lib/mount-svg.ts` — `DOMParser`-based inline injection; adds the `viewBox` the static build
+  omits and sets `aria-hidden="true"`.
+- `src/lib/shiki.ts` — lazy shared highlighter (`shiki/core` + JS regex engine, no wasm), vitesse
+  light/dark, results cached by `lang + code`.
+- `src/i18n/index.ts` — hand-rolled i18n (no vue-i18n): `LOCALES = ["en","zh"]`, flat dot-namespaced
+  keys, `t(key, vars)` with `{placeholder}` interpolation; `zh` is typed `Record<MessageKey, string>`,
+  so a missing translation is a type error. Bilingual copy is **English first, Chinese second**.
+- `vite.config.ts` — `vue()` with `isCustomElement: tag === "logo-anim"` (so the package's element is
+  not treated as a Vue component), `server.port` from `$PORT` else 5173, and `assetsInlineLimit: 0` so
+  the SVGs stay real files for `<logo-anim src>` to fetch.
+
+### Key Directories
+
+- `src/components/` — `SiteNav`, `SiteFooter`, `HeroSection`, `AnatomySection`, `VariantsSection`,
+  `PaletteSection`, `ComponentSection`, `UsageSection`; `src/components/ui/` for reusable widgets
+  (`CodeBlock.vue`).
+- `src/lib/` — the six modules listed above. `src/data/` — `mark.ts`. `src/i18n/` — the copy tables.
+- `src/styles/` — `tokens.css` (design tokens; dark values on `:root`, light in a
+  `[data-theme="light"]` override) + `base.css` (globals, `.wrap`/`.btn`/`.chip` utilities, the shiki
+  dark hook, reduced-motion resets). Imported only by `main.ts`.
+- `dist/` — gitignored Vite build output with content-hashed assets. Never commit it.
+- Absent on purpose: no `public/`, no router, no store, no tests, no lint config, no CI.
+
+### Development Commands
+
+```bash
+pnpm install     # installs ONLY the demo (its own lockfile); the parent is a separate install
+pnpm dev         # vite dev server on $PORT, else 5173
+pnpm typecheck   # vue-tsc --noEmit — the acceptance gate
+pnpm build       # vue-tsc --noEmit && vite build → demo/dist
+pnpm preview     # serve the built site
+```
+
+- Node ≥ 20.19 for Vite 8 / shiki 4 (Node 22+ in practice). pnpm only; the demo is **not** a pnpm
+  workspace member, so run installs from `demo/`.
+- Opening `demo/dist/index.html` over `file://` fails (absolute `/assets` URLs) — use `pnpm preview`.
+
+### Code Conventions & Common Patterns
+
+- Every SFC: `<script setup lang="ts">` + `<style scoped>`. No Options API, no `defineComponent`, no
+  `defineEmits`; props are type-only (`defineProps<{ active: string }>()`) or `withDefaults(...)`.
+- `import type { … }` for types — `verbatimModuleSyntax` is on.
+- Components are PascalCase (`*Section.vue`, `Site*.vue`); non-component modules kebab-case or one
+  word. Relative imports only — there are no path aliases.
+- Styles reference design tokens (`var(--space-*)`, `var(--radius-*)`, `var(--surface*)`, `var(--line)`,
+  `var(--muted)`, `var(--text)`, `var(--nav-h)`) and never raw colours; one-off values travel as inline
+  custom properties (`:style="{'--swatch': hex}"`). Colour mixing uses `color-mix(...)`.
+- Motion is always gated: `gsap.matchMedia("(prefers-reduced-motion: no-preference)")` with
+  `revert()` in `onBeforeUnmount`, plus explicit reduced-motion branches; `base.css` also zeroes
+  `.anim` durations. `data-reveal` is the shared opt-in attribute for scroll reveals.
+- Copy is bilingual and **English first**: add new strings to `src/i18n/index.ts` in both locales (the
+  `zh` table is type-checked, so a missing key fails `pnpm typecheck`). Chinese is used for text, not
+  for identifiers.
+- Accessibility is deliberate: injected SVGs are `aria-hidden`, decorative images use `alt=""`,
+  controls carry `aria-label`/`aria-pressed`/`aria-current`, and hover effects are mirrored on focus.
+
+### Important Files
+
+- `vite.config.ts` — plugin, port, `assetsInlineLimit`. `tsconfig.json` — strict + bundler resolution.
+- `src/main.ts` — the only bootstrap; `src/App.vue` — section order + scroll behaviour.
+- `src/data/mark.ts` — the artifact taxonomy. Change it whenever the package's artifact list changes
+  (`generate.ts` at the repo root authors that list; its tables and semantics are documented in Part 1).
+- `src/components/ComponentSection.vue` — drives `<logo-anim>` (`speed`, `paused`, `replay()`) and is
+  the closest thing to a consumer smoke test for the component API.
+- `src/i18n/index.ts` — all user-visible strings. `src/styles/tokens.css` — the visual contract.
+- `package.json` — deliberately has no `name`/`version`; do not add package identity.
+
+### Testing & QA
+
+- There is **no test framework** here, and none is expected: the gate is `pnpm typecheck` (verified
+  clean) followed by `pnpm build`, which proves the site still compiles and bundles against the
+  installed package.
+- Do **not** open a browser by default. Type checking, the build output and reading
+  `demo/dist/assets/*` are the first-line evidence; only go visual when the change is genuinely about
+  layout/interaction and no lighter check can settle it.
+- Nothing in `demo/` may be used as a check on the parent package: never regenerate `../dist`, never
+  run the parent's `dist/` drift check, never `npm pack` from here. If the demo reveals a package
+  defect, report it — changing it needs explicit approval.
